@@ -1,0 +1,66 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://Fisherman.gd" type="Script" id=1]
+[ext_resource path="res://sprites/creSeco.png" type="Texture" id=2]
+[ext_resource path="res://sprites/crePrim.png" type="Texture" id=3]
+[ext_resource path="res://sprites/rod.png" type="Texture" id=4]
+[ext_resource path="res://sprites/hook.png" type="Texture" id=5]
+
+[sub_resource type="RectangleShape2D" id=1]
+
+custom_solver_bias = 0.0
+extents = Vector2( 10, 10 )
+
+[node name="Fisherman" type="Node2D" index="0"]
+
+script = ExtResource( 1 )
+_sections_unfolded = [ "Collision", "Material", "Transform", "Visibility", "Z Index" ]
+
+[node name="Sprite" type="Sprite" parent="." index="0"]
+
+position = Vector2( 0, -1 )
+texture = ExtResource( 2 )
+centered = false
+_sections_unfolded = [ "Offset", "Transform" ]
+
+[node name="Sprite2" type="Sprite" parent="." index="1"]
+
+position = Vector2( 0, -1 )
+texture = ExtResource( 3 )
+centered = false
+_sections_unfolded = [ "Offset" ]
+
+[node name="HitBox" type="Area2D" parent="." index="2"]
+
+input_pickable = true
+gravity_vec = Vector2( 0, 1 )
+gravity = 98.0
+linear_damp = 0.1
+angular_damp = 1.0
+audio_bus_override = false
+audio_bus_name = "Master"
+_sections_unfolded = [ "Angular", "Collision", "Linear" ]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox" index="0"]
+
+position = Vector2( -13, 8 )
+shape = SubResource( 1 )
+_sections_unfolded = [ "Material", "Transform", "Visibility", "Z Index" ]
+
+[node name="Rod" type="Sprite" parent="." index="3"]
+
+position = Vector2( -16, -1 )
+texture = ExtResource( 4 )
+centered = false
+_sections_unfolded = [ "Offset", "Visibility" ]
+
+[node name="Hook" type="Sprite" parent="." index="4"]
+
+texture = ExtResource( 5 )
+centered = false
+offset = Vector2( -21, 7 )
+_sections_unfolded = [ "Offset" ]
+
+[connection signal="body_entered" from="HitBox" to="." method="_on_HitBox_body_entered"]
+
+
