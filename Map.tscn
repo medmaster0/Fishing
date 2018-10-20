@@ -14,7 +14,7 @@ _data = {
 "points": PoolVector2Array( 0, 0, 0, 0, 10, 570, 0, 0, 0, 0, 1020, 570 )
 }
 
-[node name="Map" type="TileMap" index="0"]
+[node name="Map" type="TileMap"]
 
 mode = 0
 tile_set = ExtResource( 1 )
@@ -39,19 +39,16 @@ Arrow = ExtResource( 3 )
 Fish = ExtResource( 4 )
 Fisherman = ExtResource( 5 )
 
-[node name="Fisherman" parent="." index="0" instance=ExtResource( 5 )]
-
-position = Vector2( 550, 70 )
-
-[node name="SpawnTimer" type="Timer" parent="." index="1"]
+[node name="SpawnTimer" type="Timer" parent="." index="0"]
 
 process_mode = 1
 wait_time = 0.5
 one_shot = false
 autostart = false
 
-[node name="SpawnPath" type="Path2D" parent="." index="2"]
+[node name="SpawnPath" type="Path2D" parent="." index="1"]
 
+editor/display_folded = true
 self_modulate = Color( 0.5, 0.6, 1, 0.7 )
 curve = SubResource( 1 )
 
@@ -66,8 +63,9 @@ cubic_interp = true
 loop = true
 lookahead = 4.0
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." index="3"]
+[node name="CanvasLayer" type="CanvasLayer" parent="." index="2"]
 
+editor/display_folded = true
 layer = -1
 offset = Vector2( 0, 0 )
 rotation = 0.0
@@ -80,6 +78,15 @@ texture = ExtResource( 6 )
 centered = false
 _sections_unfolded = [ "Animation", "Offset", "Region", "Transform", "Z Index" ]
 
+[node name="ArrowTimer" type="Timer" parent="." index="3"]
+
+process_mode = 1
+wait_time = 0.5
+one_shot = false
+autostart = false
+
 [connection signal="timeout" from="SpawnTimer" to="." method="_on_SpawnTimer_timeout"]
+
+[connection signal="timeout" from="ArrowTimer" to="." method="_on_ArrowTimer_timeout"]
 
 

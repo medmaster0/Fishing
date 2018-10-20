@@ -31,9 +31,9 @@ linear_damp = -1.0
 angular_velocity = 0.0
 angular_damp = -1.0
 script = ExtResource( 1 )
-_sections_unfolded = [ "Collision", "Linear" ]
-min_speed = 275
-max_speed = 350
+_sections_unfolded = [ "Angular", "Applied Forces", "Collision", "Linear", "Transform" ]
+min_speed = 300
+max_speed = 400
 
 [node name="Tert" type="Sprite" parent="." index="0"]
 
@@ -63,6 +63,8 @@ _sections_unfolded = [ "Transform", "Visibility" ]
 
 rect = Rect2( 0, 0, 16, 16 )
 _sections_unfolded = [ "Transform" ]
+
+[connection signal="body_entered" from="." to="." method="_on_Fish_body_entered"]
 
 [connection signal="screen_exited" from="Visibility" to="." method="_on_Visibility_screen_exited"]
 

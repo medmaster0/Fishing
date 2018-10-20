@@ -4,6 +4,14 @@ export (PackedScene) var Arrow
 export (PackedScene) var Fish 
 export (PackedScene) var Fisherman
 
+#Other variables
+var fish_colors
+var fish_colors2
+
+var rand_col4
+
+var map_clouds
+
 # Return TRUE if cell is a floor on the map
 func is_floor( cell ):
 	return get_cellv( cell ) != 1 && get_cellv( cell ) != 0
@@ -12,6 +20,14 @@ func _ready():
 	# Called when the node is added to the scene for the first time.
 	# Initialization here
 	randomize()
+	
+	#Gen fish colors
+	fish_colors = [Color(randf(),randf(),randf()), 
+					Color(randf(),randf(),randf()), 
+					Color(randf(),randf(),randf())]
+	fish_colors2 = [Color(randf(),randf(),randf()), 
+					Color(randf(),randf(),randf()),
+					Color(randf(),randf(),randf())]
 	
 	#var screen_size = Vector2(Globals.get("display/width"),Globals.get("display/height"))
 	#print(OS.get_real_window_size())
@@ -22,11 +38,13 @@ func _ready():
 	#var RogueGen = preload("RogueGen.gd")
 	#print("ok")
 	var map_size = world_to_map(get_viewport().size)
-	var map_clouds = RogueGen.GenerateClouds(map_size) #receive coords/info about clouds
+	map_clouds = RogueGen.GenerateClouds(map_size) #receive coords/info about clouds
 	
 	#Choose a unique color
 	var rand_col = Color(randf(), randf(), randf())
-	var rand_col2 = Color(randf(), randf(), randf());
+	var rand_col2 = Color(randf(), randf(), randf())
+	var rand_col3 = Color(randf(), randf(), randf())
+	rand_col4 = Color(randf(), randf(), randf())
 	#TileMap.tile_set.set_modulate(0,rand_col)
 	self_modulate = rand_col
 	
@@ -45,6 +63,10 @@ func _ready():
 		temp_fisherman.position = temp_position
 		
 		temp_fisherman.get_child(0).set_modulate(rand_col2)
+		temp_fisherman.get_child(4).set_modulate(rand_col3)
+		
+		#AAlso, create a flag in each cloud on whether a fish is caught there
+		cloud["fisherman"] = temp_fisherman
 	
 	#Iterate through map data
 #	for x in range(map_data.size()):
@@ -69,6 +91,7 @@ func _ready():
 
 	#Start timers
 	$SpawnTimer.start()
+	$ArrowTimer.start()
 	
 
 func _process(delta):
@@ -83,13 +106,47 @@ func _on_SpawnTimer_timeout():
 	add_child(fish)
 	$SpawnPath/SpawnLocation.set_offset(randi())
 	fish.position = $SpawnPath/SpawnLocation.position
-		#Find a random direction
-	var direction = rand_range(-PI/4, PI/4)
-	#fish.rotation = direction
-	fish.set_linear_velocity( Vector2(0, -rand_range(fish.min_speed, fish.max_speed)  ).rotated(direction) )
+	fish.gravity_scale = 0
+	fish.x_pos_init = fish.position.x
+	fish.y_pos_init = fish.position.y
+	
+	var type_index = randi()%fish_colors.size()
+	
+	fish.get_child(1).set_modulate( fish_colors2[type_index] )
+	fish.get_child(2).set_modulate( fish_colors[type_index] )
 
 
 
+func _on_ArrowTimer_timeout():
+	
+	#Cycle through clouds and determine if need to spawn an arrow there
+	for cloud in map_clouds:
+		if cloud["fisherman"].fishCaught == true:
+				#Create an arrow instance and add to scene
+				var arrow = Arrow.instance()
+				arrow.get_child(0).set_modulate(rand_col4)
+				arrow.x_pos_init = 100
+				arrow.y_pos_init = 300
+				
+				
+				#$Sprite.global_position.x
+				
+				arrow.x_pos_init = cloud["fisherman"].get_child(0).global_position.x - (1*cell_size.x)
+				arrow.y_pos_init = cloud["fisherman"].get_child(0).global_position.y + (10*cell_size.y)
+				
+				arrow.position = Vector2(arrow.x_pos_init, arrow.y_pos_init)
+				add_child(arrow)
+	
+#	#Create an arrow instance and add to scene
+#	var arrow = Arrow.instance()
+#	print(rand_col4)
+#	arrow.get_child(0).set_modulate(rand_col4)
+#	arrow.x_pos_init = 100
+#	arrow.y_pos_init = 100
+#	arrow.position = Vector2(arrow.x_pos_init, arrow.y_pos_init)
+#	add_child(arrow)
+	
+	pass # replace with function body
 
 
 

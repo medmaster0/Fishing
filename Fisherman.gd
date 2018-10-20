@@ -4,8 +4,45 @@ extends Node2D
 # var a = 2
 # var b = "textvar"
 
+export (PackedScene) var Arrow
+export (PackedScene) var Fish
+
 onready var map = get_parent()
 var linePressed = false
+var fishCaught = false
+
+#Esoteric Variables
+var arrow_direction_code = 1 #0-3, left, up , right, down
+var line_length = 10 #How far down the line is (as hook/fish are reeled in)
+
+#Changes the direction of the arrow according to above code
+func change_arrow_direction(direction_code):
+	match direction_code:
+		0:
+			arrow_direction_code = 0
+			$ArrowSprite.rotation = -PI/2
+			#snap back to grid
+			$ArrowSprite.position.x = - (2*map.cell_size.x)
+			$ArrowSprite.position.y = - (1*map.cell_size.y)
+		1:
+			arrow_direction_code = 1
+			$ArrowSprite.rotation = 0
+			#snap back to grid
+			$ArrowSprite.position.x = 0
+			$ArrowSprite.position.y = 0
+		2:
+			arrow_direction_code = 2
+			$ArrowSprite.rotation = PI/2
+			#snap back to grid
+			$ArrowSprite.position.x = - (1*map.cell_size.x)
+			$ArrowSprite.position.y = (2*map.cell_size.y)
+		3:
+			arrow_direction_code = 3
+			$ArrowSprite.rotation = PI
+			#snap back to grid
+			$ArrowSprite.position.x = - (3*map.cell_size.x)
+			$ArrowSprite.position.y = (1*map.cell_size.y)
+	
 
 # Step one cell in a direction
 func step( dir ):
@@ -13,17 +50,24 @@ func step( dir ):
 #	dir.x = clamp( dir.x, -1, 1 )
 #	dir.y = clamp( dir.y, -1, 1 )
 #
+	#Don't move if fish is caught
+	if fishCaught == true:
+		return
 
-	# Calculate new cprint(new_cell)
+	# Calculate new 
 	var new_cell = get_map_pos() 
 	new_cell = new_cell + dir
 	
 	#Now actually move
+	
+	#Check if adjacent tile is on top of a cloud...
+	if map.is_floor( Vector2(new_cell.x, new_cell.y + 1) ) == true:
+		return #move if not on top of cloud
 
 	# Check for valid cell to step to
 	if map.is_floor( new_cell ):
 		set_map_pos( new_cell )
-		print(new_cell)
+		
 	
 	# Announce when we bump something
 	else:
@@ -33,7 +77,6 @@ func get_map_pos():
 	return map.world_to_map( global_position )
 
 func set_map_pos( cell ):
-	print("moved")
 	position =  map.map_to_world( cell ) 
 
 func _ready():
@@ -41,11 +84,13 @@ func _ready():
 	# Initialization here
 	randomize()
 	set_process_input( true )
-	$Sprite.set_modulate( Color(randf(),randf(),randf()) )
+	#$Sprite.set_modulate( Color(randf(),randf(),randf()) )
 	$Rod.visible = false
 	$Hook.visible = false
-	$Hook.set_modulate( Color(randf(), randf(), randf()) )
+	$Hook.set_modulate( Color(randf(),randf(),randf()) )
 	$HitBox/CollisionShape2D.disabled = true
+	$ArrowHitBox.position.x = (map.cell_size.x)
+	$ArrowHitBox/CollisionShape2D.disabled = false
 	pass
 
 func _process(delta):
@@ -55,7 +100,6 @@ func _process(delta):
 	
 func _draw():
 	if linePressed == true:
-		print("drawing line")
 		#Figure out where to draw line
 		var start_cell = get_map_pos()
 		var line_pos = map.map_to_world(start_cell)
@@ -75,10 +119,10 @@ func _input( event ):
 	var new_cell = get_map_pos()
 
 	# Modify new_cell based on actions
-	if UP:
-		step( Vector2( 0, -1 ) )
-	if DOWN:
-		step( Vector2( 0, 1 ) )
+#	if UP:
+#		step( Vector2( 0, -1 ) )
+#	if DOWN:
+#		step( Vector2( 0, 1 ) )
 	if LEFT:
 		step( Vector2( -1, 0 ) )
 	if RIGHT:
@@ -89,19 +133,77 @@ func _input( event ):
 		linePressed = true
 		$Rod.visible = true
 		$Hook.visible = true
-		$HitBox/CollisionShape2D.disabled = false
+		if fishCaught == false:
+			$HitBox/CollisionShape2D.disabled = false
 		update()
 	if event is InputEventKey and event.scancode == KEY_K and !event.is_echo() :
+		if fishCaught == true:
+			return
 		linePressed = false
 		$Rod.visible = false
 		$Hook.visible = false
 		$HitBox/CollisionShape2D.disabled = true
 		update()
+		
+	if event is InputEventKey and event.scancode == KEY_A and !event.is_echo() :
+		change_arrow_direction(0) #left
+	if event is InputEventKey and event.scancode == KEY_W and !event.is_echo() :
+		change_arrow_direction(1) #up
+	if event is InputEventKey and event.scancode == KEY_D and !event.is_echo() :
+		change_arrow_direction(2) #up
+	if event is InputEventKey and event.scancode == KEY_S and !event.is_echo() :
+		change_arrow_direction(3) #up
+			
 	
 
 func _on_HitBox_body_entered(body):
-	print("hit")
+	print("catch fish ")
+	#But pass arrows...
+	if body.get_filename() == Arrow.get_path():
+		return
+	
 	#Stop the body...
-	body.linear_velocity = Vector2(0,0)
+	#body.is_caught = true
+	body.velocity = Vector2(0,0)
+	body.grav = 0
+	
+	body.x_pos_init = $Sprite.global_position.x - map.cell_size.x
+	body.y_pos_init = $Sprite.global_position.y + (11*map.cell_size.y)
+	
+	#reposition on top of hook
+	#print(body.global_position)
+	#body.position = map.map_to_world(map.world_to_map(get_child(4).global_position))
+	body.global_position = $Sprite.global_position
+	body.update()
+	#body.set_map_position(map.map_to_world(map.world_to_map(get_child(4).global_position)))
+	
+	#Turn off colision
+	$HitBox/CollisionShape2D.disabled = true
+	#Let other functions know we caught fish
+	fishCaught = true
+	
+
+#Detect if incoming arrow matches fisherman's arrow
+func _on_ArrowHitBox_body_entered(body):
+	
+	#....But pass fishes
+	if body.get_filename() == Fish.get_path():
+		return
+	
+	#Check if the arrow code matches the fisherman's direction code
+	if body.direction_code == arrow_direction_code:
+		body.queue_free()
+		#Also need to move the hook and stuff up
+		
 	
 	
+
+#Detect if incoming arrow matches fisherman's arrow
+func _on_ArrowHitBox_body_exited(body):
+		#....But pass fishes
+	if body.get_filename() == Fish.get_path():
+		return
+	
+	#Check if the arrow code matches the fisherman's direction code
+	if body.direction_code == arrow_direction_code:
+		body.queue_free()
