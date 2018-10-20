@@ -14,6 +14,7 @@ var fishCaught = false
 #Esoteric Variables
 var arrow_direction_code = 1 #0-3, left, up , right, down
 var line_length = 10 #How far down the line is (as hook/fish are reeled in)
+var hooked_fish #will point to the fish that was hooked
 
 #Changes the direction of the arrow according to above code
 func change_arrow_direction(direction_code):
@@ -90,7 +91,7 @@ func _ready():
 	$Hook.set_modulate( Color(randf(),randf(),randf()) )
 	$HitBox/CollisionShape2D.disabled = true
 	$ArrowHitBox.position.x = (map.cell_size.x)
-	$ArrowHitBox/CollisionShape2D.disabled = false
+	$ArrowHitBox/CollisionShape2D.disabled = true
 	pass
 
 func _process(delta):
@@ -103,8 +104,8 @@ func _draw():
 		#Figure out where to draw line
 		var start_cell = get_map_pos()
 		var line_pos = map.map_to_world(start_cell)
-		draw_line( Vector2(-13,6), Vector2(-13,160), Color(1,1,1), 2.0)
-		$Hook.offset = Vector2(-21,160-16+12)
+		draw_line( Vector2(-13,6), Vector2(-13,map.cell_size.y*line_length), Color(1,1,1), 2.0)
+		$Hook.offset = Vector2(-21,(line_length*map.cell_size.y)-16+12)
 		$HitBox/CollisionShape2D.position = Vector2( $Hook.offset.x+8 , $Hook.offset.y+8 )
 		#draw_line( Vector2(line_pos.x - 13, line_pos.y), Vector2(line_pos.x - 13, line_pos.y), Color(0.0,0.0,0.0), 1.0)
 
@@ -161,6 +162,10 @@ func _on_HitBox_body_entered(body):
 	#But pass arrows...
 	if body.get_filename() == Arrow.get_path():
 		return
+		
+	#If the fish was already caught ignore it
+	if body.grav == 0:
+		return
 	
 	#Stop the body...
 	#body.is_caught = true
@@ -168,12 +173,12 @@ func _on_HitBox_body_entered(body):
 	body.grav = 0
 	
 	body.x_pos_init = $Sprite.global_position.x - map.cell_size.x
-	body.y_pos_init = $Sprite.global_position.y + (11*map.cell_size.y)
+	body.y_pos_init = $Sprite.global_position.y + ( (line_length+1)*map.cell_size.y)
 	
 	#reposition on top of hook
 	#print(body.global_position)
 	#body.position = map.map_to_world(map.world_to_map(get_child(4).global_position))
-	body.global_position = $Sprite.global_position
+	#body.global_position = $Sprite.global_position
 	body.update()
 	#body.set_map_position(map.map_to_world(map.world_to_map(get_child(4).global_position)))
 	
@@ -182,28 +187,79 @@ func _on_HitBox_body_entered(body):
 	#Let other functions know we caught fish
 	fishCaught = true
 	
+	#Turn on Arrow Hitbox...
+	$ArrowHitBox/CollisionShape2D.disabled = false
+	
+	#REcord fish in variable
+	hooked_fish = body
+	
 
 #Detect if incoming arrow matches fisherman's arrow
 func _on_ArrowHitBox_body_entered(body):
-	
-	#....But pass fishes
+		#....But pass fishes
 	if body.get_filename() == Fish.get_path():
 		return
+		
+	#Also need to pass hook....
 	
 	#Check if the arrow code matches the fisherman's direction code
 	if body.direction_code == arrow_direction_code:
 		body.queue_free()
 		#Also need to move the hook and stuff up
+		line_length = line_length - 1
 		
-	
-	
+		#Means we reeled in fish!
+		if line_length == -1:
+			#Reset rod
+			line_length = 10
+			hooked_fish.queue_free()
+			fishCaught = false
+			$ArrowHitBox/CollisionShape2D.disabled = true
+			$HitBox/CollisionShape2D.disabled = false
+			$Hook.offset.y = 10*map.cell_size.y
+			update()
+			return
+			
+		
+		#$Hook.position.y = $Hook.position.y - map.cell_size.y
+		#hooked_fish.position.y = hooked_fish.position.y - map.cell_size.y
+		#hooked_fish.position = Vector2(hooked_fish.position.x, hooked_fish.position.y - map.cell_size.y)
+		hooked_fish.y_pos_init = hooked_fish.y_pos_init - map.cell_size.y
+		hooked_fish.update()
+		
+		update()
 
 #Detect if incoming arrow matches fisherman's arrow
 func _on_ArrowHitBox_body_exited(body):
-		#....But pass fishes
+	#....But pass fishes
 	if body.get_filename() == Fish.get_path():
 		return
+		
+	#Also need to pass hook....
 	
 	#Check if the arrow code matches the fisherman's direction code
 	if body.direction_code == arrow_direction_code:
 		body.queue_free()
+		#Also need to move the hook and stuff up
+		line_length = line_length - 1
+		
+		#Means we reeled in fish!
+		if line_length == -1:
+			#Reset rod
+			line_length = 10
+			hooked_fish.queue_free()
+			fishCaught = false
+			$ArrowHitBox/CollisionShape2D.disabled = true
+			$HitBox/CollisionShape2D.disabled = false
+			$Hook.offset.y = 10*map.cell_size.y
+			update()
+			return
+			
+		
+		#$Hook.position.y = $Hook.position.y - map.cell_size.y
+		#hooked_fish.position.y = hooked_fish.position.y - map.cell_size.y
+		#hooked_fish.position = Vector2(hooked_fish.position.x, hooked_fish.position.y - map.cell_size.y)
+		hooked_fish.y_pos_init = hooked_fish.y_pos_init - map.cell_size.y
+		hooked_fish.update()
+		
+		update()

@@ -49,6 +49,7 @@ func _ready():
 	self_modulate = rand_col
 	
 	#go through each cloud and drawwwllll
+	var cloud_index = 0
 	for cloud in map_clouds:
 		
 		#cycle along length and set cells
@@ -67,6 +68,8 @@ func _ready():
 		
 		#AAlso, create a flag in each cloud on whether a fish is caught there
 		cloud["fisherman"] = temp_fisherman
+		cloud["index"] = cloud_index
+		cloud_index = cloud_index + 1
 	
 	#Iterate through map data
 #	for x in range(map_data.size()):
@@ -135,6 +138,7 @@ func _on_ArrowTimer_timeout():
 				arrow.y_pos_init = cloud["fisherman"].get_child(0).global_position.y + (10*cell_size.y)
 				
 				arrow.position = Vector2(arrow.x_pos_init, arrow.y_pos_init)
+				arrow.set_collision_layer_bit(0, false)
 				add_child(arrow)
 	
 #	#Create an arrow instance and add to scene

@@ -38,6 +38,9 @@ func _ready():
 			rotation = PI
 			x_pos_init = x_pos_init + map.cell_size.x
 	
+	#Disable any further rotation
+	mode = RigidBody2D.MODE_CHARACTER 
+	
 	pass
 
 func _process(delta):
