@@ -16,11 +16,12 @@ var grav =300 #factor of gravity
 var time = 0 #total time since launch (in seconds)
 var x_pos
 var y_pos
-var x_pos_init #initial position
-var y_pos_init #initial position
+var x_pos_init = 0#initial position
+var y_pos_init = 0#initial position
 
 #Other variables
 var is_caught = false
+var type_id = 77 #a variable to indicate what color scheme to use
 
 func _ready():
 	# Called when the node is added to the scene for the first time.

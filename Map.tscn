@@ -14,7 +14,7 @@ _data = {
 "points": PoolVector2Array( 0, 0, 0, 0, 10, 570, 0, 0, 0, 0, 1020, 570 )
 }
 
-[node name="Map" type="TileMap"]
+[node name="Map" type="TileMap" index="0"]
 
 mode = 0
 tile_set = ExtResource( 1 )
@@ -84,6 +84,14 @@ process_mode = 1
 wait_time = 0.5
 one_shot = false
 autostart = false
+
+[node name="HUD" type="CanvasLayer" parent="." index="4"]
+
+layer = 1
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+transform = Transform2D( 1, 0, 0, 1, 0, 0 )
 
 [connection signal="timeout" from="SpawnTimer" to="." method="_on_SpawnTimer_timeout"]
 

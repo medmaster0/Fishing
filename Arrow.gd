@@ -16,6 +16,7 @@ var velocity = Vector2(0,-100) #float upwards DEBUG: right
 
 #Esoteric Variables
 var direction_code = 0 #0-3, left, up , right, down
+var is_processed = false #a flag to indicate whther the arrow has caused a reel already
 
 func _ready():
 	
@@ -40,6 +41,9 @@ func _ready():
 	
 	#Disable any further rotation
 	mode = RigidBody2D.MODE_CHARACTER 
+	
+	#Set flags
+	is_processed = false
 	
 	pass
 

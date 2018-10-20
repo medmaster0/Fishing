@@ -202,14 +202,22 @@ func _on_ArrowHitBox_body_entered(body):
 		
 	#Also need to pass hook....
 	
+	#Also need to skip if we've already processed
+	if body.is_processed == true:
+		return
+	
 	#Check if the arrow code matches the fisherman's direction code
 	if body.direction_code == arrow_direction_code:
+		body.is_processed = true
 		body.queue_free()
 		#Also need to move the hook and stuff up
 		line_length = line_length - 1
 		
 		#Means we reeled in fish!
 		if line_length == -1:
+			#Need to update Map Score
+			map.fish_scores[hooked_fish.type_id]=map.fish_scores[hooked_fish.type_id] + 1
+			
 			#Reset rod
 			line_length = 10
 			hooked_fish.queue_free()
@@ -237,14 +245,22 @@ func _on_ArrowHitBox_body_exited(body):
 		
 	#Also need to pass hook....
 	
+		#Also need to skip if we've already processed
+	if body.is_processed == true:
+		return
+	
 	#Check if the arrow code matches the fisherman's direction code
 	if body.direction_code == arrow_direction_code:
+		body.is_processed = true
 		body.queue_free()
 		#Also need to move the hook and stuff up
 		line_length = line_length - 1
 		
 		#Means we reeled in fish!
 		if line_length == -1:
+			#Need to update Map Score
+			map.fish_scores[hooked_fish.type_id]=map.fish_scores[hooked_fish.type_id] + 1
+			
 			#Reset rod
 			line_length = 10
 			hooked_fish.queue_free()

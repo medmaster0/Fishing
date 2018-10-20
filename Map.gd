@@ -8,6 +8,8 @@ export (PackedScene) var Fisherman
 var fish_colors
 var fish_colors2
 
+var fish_scores = [] #a list of numbers corresponding to the fish
+
 var rand_col4
 
 var map_clouds
@@ -24,9 +26,11 @@ func _ready():
 	#Gen fish colors
 	fish_colors = [Color(randf(),randf(),randf()), 
 					Color(randf(),randf(),randf()), 
+					Color(randf(),randf(),randf()), 
 					Color(randf(),randf(),randf())]
 	fish_colors2 = [Color(randf(),randf(),randf()), 
 					Color(randf(),randf(),randf()),
+					Color(randf(),randf(),randf()), 
 					Color(randf(),randf(),randf())]
 	
 	#var screen_size = Vector2(Globals.get("display/width"),Globals.get("display/height"))
@@ -71,16 +75,37 @@ func _ready():
 		cloud["index"] = cloud_index
 		cloud_index = cloud_index + 1
 	
-	#Iterate through map data
-#	for x in range(map_data.size()):
-#		for y in range(map_data[x].size()):
-#			if map_data[x][y] == 0:
-#				set_cell(x, y, map_data[x][y])
-			
-	
-	
-
-	
+	#Set up Fish scores
+	#And display some fish there
+	#Iterate through every type of fish
+	var color_count = 0
+	for color in fish_colors:
+		var temp_label = Label.new()
+		print(temp_label.margin_left)
+		temp_label.margin_left = 3*cell_size.x
+		temp_label.margin_top = cell_size.y*(color_count+1)
+		temp_label.text = "x " + str(0)
+		#temp_label.position = Vector2(cell_size.x, cell_size.y*color_count) 
+		#temp_label.margin.Left = cell_size.x
+		#temp_label.Margin = Vector2(cell_size.x, cell_size.y*color_count) 
+		$HUD.add_child(temp_label)
+		
+		#Also create the fish icon
+		var score_fish = Fish.instance()
+		add_child(score_fish)
+		score_fish.velocity = Vector2(0,0)
+		score_fish.grav = 0
+		score_fish.gravity_scale = 0
+		
+		score_fish.x_pos_init = cell_size.x
+		score_fish.y_pos_init = cell_size.y*(color_count+1)
+		
+		score_fish.get_child(1).set_modulate( fish_colors2[color_count] )
+		score_fish.get_child(2).set_modulate( fish_colors[color_count] )
+		fish_scores.append(0)
+		
+		color_count = color_count + 1
+		
 		
 	#Draw background
 	$CanvasLayer/Background.scale = get_viewport().size
@@ -100,6 +125,11 @@ func _ready():
 func _process(delta):
 	# Called every frame. Delta is time since last frame.
 	# Update game logic here.
+	
+	#Need to update fish scores
+	for i in range(0,fish_colors.size()):
+		$HUD.get_child(i).text = "x " + str(fish_scores[i])
+	
 	pass
 
 
@@ -114,6 +144,7 @@ func _on_SpawnTimer_timeout():
 	fish.y_pos_init = fish.position.y
 	
 	var type_index = randi()%fish_colors.size()
+	fish.type_id = type_index
 	
 	fish.get_child(1).set_modulate( fish_colors2[type_index] )
 	fish.get_child(2).set_modulate( fish_colors[type_index] )

@@ -19,7 +19,7 @@ extents = Vector2( 10, 10 )
 custom_solver_bias = 0.0
 extents = Vector2( 10, 10 )
 
-[node name="Fisherman" type="Node2D" index="0"]
+[node name="Fisherman" type="Node2D"]
 
 script = ExtResource( 1 )
 _sections_unfolded = [ "Collision", "Material", "Transform", "Visibility", "Z Index" ]
@@ -42,6 +42,7 @@ _sections_unfolded = [ "Offset" ]
 
 [node name="HitBox" type="Area2D" parent="." index="2"]
 
+editor/display_folded = true
 input_pickable = true
 gravity_vec = Vector2( 0, 1 )
 gravity = 98.0
@@ -80,6 +81,7 @@ _sections_unfolded = [ "Offset", "Region", "Transform" ]
 
 [node name="ArrowHitBox" type="Area2D" parent="." index="6"]
 
+editor/display_folded = true
 input_pickable = true
 gravity_vec = Vector2( 0, 1 )
 gravity = 98.0
