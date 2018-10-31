@@ -10,7 +10,8 @@ var fish_colors2
 
 var fish_scores = [] #a list of numbers corresponding to the fish
 
-var rand_col4
+var rand_col4 #color of arrows
+var background_col #background color
 
 var map_clouds
 
@@ -75,19 +76,23 @@ func _ready():
 		cloud["index"] = cloud_index
 		cloud_index = cloud_index + 1
 	
+	#Draw background
+	background_col = Color(randf(), randf(), randf())
+	$CanvasLayer/Background.scale = get_viewport().size
+	$CanvasLayer/Background.set_modulate( background_col )
+	
 	#Set up Fish scores
 	#And display some fish there
 	#Iterate through every type of fish
 	var color_count = 0
 	for color in fish_colors:
 		var temp_label = Label.new()
-		print(temp_label.margin_left)
 		temp_label.margin_left = 3*cell_size.x
 		temp_label.margin_top = cell_size.y*(color_count+1)
 		temp_label.text = "x " + str(0)
-		#temp_label.position = Vector2(cell_size.x, cell_size.y*color_count) 
-		#temp_label.margin.Left = cell_size.x
-		#temp_label.Margin = Vector2(cell_size.x, cell_size.y*color_count) 
+		#var text_color = MedAlgo.oppositeColor(background_col)
+		var text_color = MedAlgo.contrastColor(background_col)
+		temp_label.modulate = text_color
 		$HUD.add_child(temp_label)
 		
 		#Also create the fish icon
@@ -106,10 +111,6 @@ func _ready():
 		
 		color_count = color_count + 1
 		
-		
-	#Draw background
-	$CanvasLayer/Background.scale = get_viewport().size
-	$CanvasLayer/Background.set_modulate( Color(randf(), randf(), randf()))
 	
 	#Make arrow
 	var arrow = Arrow.instance()

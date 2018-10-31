@@ -167,6 +167,11 @@ func _on_HitBox_body_entered(body):
 	if body.grav == 0:
 		return
 	
+	#Turn off colision
+	$HitBox/CollisionShape2D.disabled = true
+	#Let other functions know we caught fish
+	fishCaught = true
+	
 	#Stop the body...
 	#body.is_caught = true
 	body.velocity = Vector2(0,0)
@@ -181,11 +186,6 @@ func _on_HitBox_body_entered(body):
 	#body.global_position = $Sprite.global_position
 	body.update()
 	#body.set_map_position(map.map_to_world(map.world_to_map(get_child(4).global_position)))
-	
-	#Turn off colision
-	$HitBox/CollisionShape2D.disabled = true
-	#Let other functions know we caught fish
-	fishCaught = true
 	
 	#Turn on Arrow Hitbox...
 	$ArrowHitBox/CollisionShape2D.disabled = false
@@ -247,6 +247,10 @@ func _on_ArrowHitBox_body_exited(body):
 	
 		#Also need to skip if we've already processed
 	if body.is_processed == true:
+		return
+		
+	#return if there is no fish
+	if hooked_fish == null:
 		return
 	
 	#Check if the arrow code matches the fisherman's direction code
